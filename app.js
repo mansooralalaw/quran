@@ -323,40 +323,10 @@ async function fetchAudioFiles(chapterId, reciterId) {
   return data.audio_files;
 }
 
-// Extra reciters available on quran.com but not returned by the default endpoint
-const EXTRA_RECITERS = [
-  { id: 13, reciter_name: 'عبدالباسط عبدالصمد', style: 'مرتل' },
-  { id: 14, reciter_name: 'محمد صديق المنشاوي', style: 'مجوّد' },
-  { id: 15, reciter_name: 'محمود خليل الحصري', style: 'مرتل' },
-  { id: 16, reciter_name: 'سعد الغامدي', style: '' },
-  { id: 17, reciter_name: 'ناصر القطامي', style: '' },
-  { id: 18, reciter_name: 'فارس عباد', style: '' },
-  { id: 19, reciter_name: 'ياسر الدوسري', style: '' },
-  { id: 20, reciter_name: 'ماهر المعيقلي', style: '' },
-  { id: 21, reciter_name: 'خالد القحطاني', style: '' },
-  { id: 22, reciter_name: 'وديع اليمني', style: '' },
-  { id: 23, reciter_name: 'عمر القزابري', style: '' },
-  { id: 24, reciter_name: 'حسين آل الشيخ', style: '' },
-  { id: 25, reciter_name: 'صلاح بو خاطر', style: '' },
-  { id: 26, reciter_name: 'خالد الجليل', style: '' },
-  { id: 27, reciter_name: 'أحمد العجمي', style: '' },
-  { id: 28, reciter_name: 'إدريس أبكر', style: '' },
-  { id: 29, reciter_name: 'مصطفى إسماعيل', style: 'مجوّد' },
-  { id: 30, reciter_name: 'محمد أيوب', style: '' },
-];
-
 async function fetchReciters() {
-  try {
-    const res = await fetch(`${API}/resources/recitations?language=ar`);
-    const data = await res.json();
-    const apiReciters = data.recitations || [];
-    // Merge API reciters with extra ones, avoiding duplicates by id
-    const apiIds = new Set(apiReciters.map(r => r.id));
-    const extras = EXTRA_RECITERS.filter(r => !apiIds.has(r.id));
-    return [...apiReciters, ...extras];
-  } catch {
-    return EXTRA_RECITERS;
-  }
+  const res = await fetch(`${API}/resources/recitations?language=ar`);
+  const data = await res.json();
+  return data.recitations || [];
 }
 
 // =====================================================
