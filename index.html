@@ -266,6 +266,12 @@
         <button class="athkar-tab-btn" data-tab="massa">أذكار المساء</button>
         <button class="athkar-tab-btn" data-tab="quran">أدعية قرآنية</button>
       </div>
+      <!-- Athkar Audio Player Controller -->
+      <div class="athkar-audio-controller" id="athkarAudioController">
+        <button id="athkarPlayBtn" class="athkar-play-btn">🔊 تشغيل الأذكار بالصوت</button>
+        <span id="athkarAudioStatus" style="font-size: 11px; color: var(--text-muted);">بصوت الشيخ مشاري العفاسي</span>
+        <audio id="athkarAudioElement" preload="none"></audio>
+      </div>
       <div class="tafsir-modal-body" id="athkarListContainer">
         <!-- Athkar items rendered dynamically -->
       </div>
