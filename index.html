@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="القرآن الكريم - استمع واقرأ القرآن الكريم بأصوات أشهر القراء" />
+  <title>القرآن الكريم - صوت ونص</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ===== Decorative Background ===== -->
+  <div class="bg-decoration">
+    <div class="bg-circle bg-circle-1"></div>
+    <div class="bg-circle bg-circle-2"></div>
+    <div class="bg-circle bg-circle-3"></div>
+  </div>
+
+  <!-- ===== Header ===== -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <div class="logo-icon">☪</div>
+        <div class="logo-text">
+          <h1>القرآن الكريم</h1>
+          <p class="subtitle">اقرأ واستمع وتدبّر</p>
+        </div>
+      </div>
+      <div class="view-modes">
+        <button class="mode-btn active" data-mode="both">📖🔊 صوت وكتابة</button>
+        <button class="mode-btn" data-mode="text">📖 كتابة فقط</button>
+        <button class="mode-btn" data-mode="audio">🔊 صوت فقط</button>
+      </div>
+      
+      <!-- Theme & Font Size Controls -->
+      <div class="header-settings">
+        <button id="headerAthkarBtn" class="settings-btn" style="width: auto; padding: 0 12px; gap: 6px; font-weight: 700; color: var(--accent-gold-dark);" title="أذكار وأدعية">🤲 الأذكار</button>
+        <button id="themeToggle" class="settings-btn" title="تبديل الوضع الليلي">🌙</button>
+        <div class="font-controller">
+          <button id="fontDecrease" class="settings-btn" title="تصغير الخط">A-</button>
+          <span id="fontSizeDisplay">26px</span>
+          <button id="fontIncrease" class="settings-btn" title="تكبير الخط">A+</button>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="stat-card" id="rewardCard">
+          <span class="stat-icon">🌟</span>
+          <div class="stat-info">
+            <span class="stat-value" id="points">0</span>
+            <span class="stat-label">نقاط الثواب</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">📖</span>
+          <div class="stat-info">
+            <span class="stat-value" id="versesRead">0</span>
+            <span class="stat-label">آيات مقروءة</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Prayer Times Bar -->
+    <div class="prayer-times-bar" id="prayerTimesBar">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="prayer-title">🕌 مواقيت الصلاة:</span>
+        <select id="prayerMethodSelect" class="reciter-select" style="min-width: 140px; padding: 2px 6px; font-size: 11px; height: 26px;">
+          <option value="3" selected>طريقة رابطة العالم الإسلامي (المعتمدة)</option>
+          <option value="5">طريقة الهيئة المصرية العامة</option>
+          <option value="0">طريقة الإمامية (قم/قم وبغداد)</option>
+          <option value="4">طريقة أم القرى (مكة المكرمة)</option>
+        </select>
+      </div>
+      <div class="prayer-items">
+        <span class="prayer-item">الفجر: <strong id="prayFajr">--:--</strong></span>
+        <span class="prayer-item">الشروق: <strong id="praySunrise">--:--</strong></span>
+        <span class="prayer-item">الظهر: <strong id="prayDhuhr">--:--</strong></span>
+        <span class="prayer-item">العصر: <strong id="prayAsr">--:--</strong></span>
+        <span class="prayer-item">المغرب: <strong id="prayMaghrib">--:--</strong></span>
+        <span class="prayer-item">العشاء: <strong id="prayIsha">--:--</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Main Layout ===== -->
+  <div class="app-container">
+
+    <!-- Sidebar: Surah List -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>📜 فهرس السور</h2>
+        <input type="text" id="searchSurah" placeholder="ابحث عن سورة..." class="search-input" />
+        <div class="sidebar-nav-btns">
+          <button id="resumeBookmarkBtn" class="resume-btn" style="display:none;" title="الذهاب للعلامة الحافظة">🔖 واصل القراءة</button>
+        </div>
+      </div>
+      <ul class="surah-list" id="surahList">
+        <!-- Filled by JS -->
+      </ul>
+    </aside>
+
+    <!-- Toggle Sidebar Button (Mobile) -->
+    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <!-- Welcome Screen -->
+      <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-icon">﷽</div>
+        <div class="welcome-divider"></div>
+        <p>اختر سورة من القائمة لتبدأ القراءة والاستماع</p>
+        <div class="quick-access">
+          <h3>سور مقترحة</h3>
+          <div class="quick-buttons">
+            <button class="quick-btn" onclick="loadSurah(1)"><span>الفاتحة</span></button>
+            <button class="quick-btn" onclick="loadSurah(36)"><span>يس</span></button>
+            <button class="quick-btn" onclick="loadSurah(55)"><span>الرحمن</span></button>
+            <button class="quick-btn" onclick="loadSurah(67)"><span>الملك</span></button>
+            <button class="quick-btn" onclick="loadSurah(112)"><span>الإخلاص</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Surah View -->
+      <div class="surah-view" id="surahView" style="display:none;">
+        <div class="surah-header-card" id="surahHeaderCard">
+          <div class="surah-name" id="surahName"></div>
+          <div class="surah-info" id="surahInfo"></div>
+          <div class="bismillah" id="bismillah">بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ</div>
+        </div>
+        <div class="verses-container" id="versesContainer">
+          <!-- Verses rendered here -->
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div class="loading" id="loading" style="display:none;">
+        <div class="spinner"></div>
+        <p>جارٍ التحميل...</p>
+      </div>
+
+      <!-- Dedication Footer -->
+      <div class="dedication-footer">
+        <div class="dedication-inner">
+          <!-- Iraqi Flag SVG -->
+          <div class="iraq-flag">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 36" width="60" height="36" style="border-radius:4px; display:block; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+              <!-- Red stripe -->
+              <rect width="60" height="12" fill="#CE1126"/>
+              <!-- White stripe -->
+              <rect y="12" width="60" height="12" fill="#FFFFFF"/>
+              <!-- Black stripe -->
+              <rect y="24" width="60" height="12" fill="#000000"/>
+              <!-- Green Takbir text (الله أكبر) centered -->
+              <text x="30" y="20.5" font-family="serif" font-size="6.5" fill="#007A3D" text-anchor="middle" dominant-baseline="middle" font-weight="bold">الله أكبر</text>
+            </svg>
+          </div>
+
+          <div class="dedication-content">
+            <span class="dedication-icon-top">🤲</span>
+            <p class="dedication-text">
+              اللهم اجعل ثواب قراءة هذا القرآن الكريم
+              <br/>
+              صدقةً جاريةً على أرواح <strong>شهداء وأموات العراقيين</strong> أجمعين
+            </p>
+          </div>
+
+          <!-- Iraqi Flag SVG (mirrored side) -->
+          <div class="iraq-flag">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 36" width="60" height="36" style="border-radius:4px; display:block; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+              <rect width="60" height="12" fill="#CE1126"/>
+              <rect y="12" width="60" height="12" fill="#FFFFFF"/>
+              <rect y="24" width="60" height="12" fill="#000000"/>
+              <text x="30" y="20.5" font-family="serif" font-size="6.5" fill="#007A3D" text-anchor="middle" dominant-baseline="middle" font-weight="bold">الله أكبر</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ===== Fixed Audio Player ===== -->
+  <div class="audio-player" id="audioPlayer">
+    <div class="player-content">
+      <div class="player-info">
+        <span class="player-surah" id="playerSurah">—</span>
+        <span class="player-ayah" id="playerAyah"></span>
+      </div>
+      <div class="player-controls">
+        <button class="ctrl-btn" id="prevBtn" title="الآية السابقة">⏮</button>
+        <button class="ctrl-btn play-btn" id="playPauseBtn" title="تشغيل/إيقاف">▶</button>
+        <button class="ctrl-btn" id="nextBtn" title="الآية التالية">⏭</button>
+      </div>
+      <div class="player-progress">
+        <input type="range" id="seekBar" class="seek-bar" value="0" min="0" max="100" step="0.1" />
+      <div class="player-repeater">
+        <label for="repeatSelect">🔁 تكرار الآية:</label>
+        <select id="repeatSelect" class="repeater-select">
+          <option value="1">مرة واحدة</option>
+          <option value="3">٣ مرات</option>
+          <option value="5">٥ مرات</option>
+          <option value="999">تكرار مستمر</option>
+        </select>
+      </div>
+      <div class="player-reciter">
+        <label for="reciterSelect">🎙️</label>
+        <select id="reciterSelect" class="reciter-select">
+          <option value="7">جارٍ التحميل...</option>
+        </select>
+      </div>
+    </div>
+    <audio id="audioElement" preload="none"></audio>
+  </div>
+
+  <!-- ===== Badge Notification ===== -->
+  <div class="badge-notification" id="badgeNotification" style="display:none;">
+    <span class="badge-icon">🏅</span>
+    <span class="badge-text" id="badgeText"></span>
+  </div>
+
+  </div>
+
+  <!-- ===== Elegant Tafsir & Translation Modal ===== -->
+  <div class="tafsir-modal" id="tafsirModal" style="display:none;">
+    <div class="tafsir-modal-content">
+      <div class="tafsir-modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h3 id="tafsirTitle">تفسير الآية</h3>
+          <select id="tafsirSelect" class="reciter-select" style="min-width: 140px; padding: 4px 8px; font-size: 12px;">
+            <option value="ar.muyassar">التفسير الميسّر</option>
+            <option value="ar.waseet">التفسير الوسيط (طنطاوي)</option>
+            <option value="ar.saadi">تفسير السعدي</option>
+          </select>
+        </div>
+        <button id="closeTafsirBtn" class="close-modal-btn">&times;</button>
+      </div>
+      <div class="tafsir-modal-body">
+        <div class="tafsir-ayah-box">
+          <p id="tafsirAyahText" class="arabic"></p>
+        </div>
+        <div class="tafsir-content-section">
+          <h4>📖 التفسير الميسّر:</h4>
+          <p id="tafsirText" class="tafsir-text">جارٍ تحميل التفسير...</p>
+        </div>
+        <div class="translation-content-section">
+          <h4>🌐 الترجمة الإنجليزية:</h4>
+          <p id="translationText" class="translation-text">Loading translation...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Athkar Modal ===== -->
+  <div class="tafsir-modal" id="athkarModal" style="display:none;">
+    <div class="tafsir-modal-content">
+      <div class="tafsir-modal-header">
+        <h3>🤲 الأذكار والأدعية القرآنية</h3>
+        <button id="closeAthkarBtn" class="close-modal-btn">&times;</button>
+      </div>
+      <div class="athkar-categories">
+        <button class="athkar-tab-btn active" data-tab="sabah">أذكار الصباح</button>
+        <button class="athkar-tab-btn" data-tab="massa">أذكار المساء</button>
+        <button class="athkar-tab-btn" data-tab="quran">أدعية قرآنية</button>
+      </div>
+      <div class="tafsir-modal-body" id="athkarListContainer">
+        <!-- Athkar items rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
