@@ -57,7 +57,14 @@ const sidebar         = document.getElementById('sidebar');
 // --- State ---
 let chapters = [];
 let reciters = [];
-let selectedReciterId = parseInt(localStorage.getItem('selectedReciter') || '7');
+// Validate saved reciter to ensure it is one of the official 12 IDs, else fallback to 7 (Mishary Alafasy)
+const VALID_RECITER_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+let savedReciter = parseInt(localStorage.getItem('selectedReciter') || '7');
+if (!VALID_RECITER_IDS.includes(savedReciter)) {
+  savedReciter = 7;
+  localStorage.setItem('selectedReciter', '7');
+}
+let selectedReciterId = savedReciter;
 let currentSurahId = null;
 let currentSurahName = '';
 let currentVerses = [];
