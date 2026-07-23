@@ -57,13 +57,8 @@ const sidebar         = document.getElementById('sidebar');
 // --- State ---
 let chapters = [];
 let reciters = [];
-// Validate saved reciter to ensure it is one of the official 12 IDs, else fallback to 7 (Mishary Alafasy)
-const VALID_RECITER_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-let savedReciter = parseInt(localStorage.getItem('selectedReciter') || '7');
-if (!VALID_RECITER_IDS.includes(savedReciter)) {
-  savedReciter = 7;
-  localStorage.setItem('selectedReciter', '7');
-}
+// EveryAyah uses string IDs (e.g. Alafasy_128kbps)
+let savedReciter = localStorage.getItem('selectedReciter') || 'Alafasy_128kbps';
 let selectedReciterId = savedReciter;
 let currentSurahId = null;
 let currentSurahName = '';
@@ -322,18 +317,49 @@ async function fetchVerses(chapterId) {
   return data.verses;
 }
 
+// List of popular reciters supported by everyayah.com (Ayah-by-Ayah)
+const EVERYAYAH_RECITERS = [
+  { id: "Alafasy_128kbps", name: "مشاري العفاسي", sub: "مرتل" },
+  { id: "Abdul_Basit_Murattal_64kbps", name: "عبدالباسط عبدالصمد", sub: "مرتل" },
+  { id: "Abdul_Basit_Mujawwad_128kbps", name: "عبدالباسط عبدالصمد", sub: "مجوّد" },
+  { id: "Minshawy_Murattal_128kbps", name: "محمد صديق المنشاوي", sub: "مرتل" },
+  { id: "Minshawy_Mujawwad_128kbps", name: "محمد صديق المنشاوي", sub: "مجوّد" },
+  { id: "Husary_128kbps", name: "محمود خليل الحصري", sub: "مرتل" },
+  { id: "Husary_Muallim_128kbps", name: "محمود خليل الحصري", sub: "المعلم" },
+  { id: "Husary_Mujawwad_128kbps", name: "محمود خليل الحصري", sub: "مجوّد" },
+  { id: "Maher_AlMuaiqly_64kbps", name: "ماهر المعيقلي", sub: "مرتل" },
+  { id: "Ghamadi_40kbps", name: "سعد الغامدي", sub: "مرتل" },
+  { id: "Ahmed_ibn_Ali_al-Ajamy_128kbps", name: "أحمد العجمي", sub: "مرتل" },
+  { id: "Yasser_Ad-Dussary_128kbps", name: "ياسر الدوسري", sub: "مرتل" },
+  { id: "Shatri_128kbps", name: "أبو بكر الشاطري", sub: "مرتل" },
+  { id: "Shuraym_128kbps", name: "سعود الشريم", sub: "مرتل" },
+  { id: "Sudais_128kbps", name: "عبدالرحمن السديس", sub: "مرتل" },
+  { id: "Nasser_Alqatami_128kbps", name: "ناصر القطامي", sub: "مرتل" },
+  { id: "Fares_Abbad_64kbps", name: "فارس عباد", sub: "مرتل" },
+  { id: "Abdurrahim_Radhy_192kbps", name: "عبدالرحيم راضي", sub: "مرتل" },
+  { id: "Akram_AlAlaqimy_128kbps", name: "أكرم العلاقمي", sub: "مرتل" },
+  { id: "Ali_Jaber_64kbps", name: "علي جابر", sub: "مرتل" },
+  { id: "Ayman_Sood_64kbps", name: "أيمن سويد", sub: "تعليمي" },
+  { id: "Hudhaify_128kbps", name: "علي الحذيفي", sub: "مرتل" },
+  { id: "Ibrahim_Akhdar_32kbps", name: "إبراهيم الأخضر", sub: "مرتل" },
+  { id: "Muhammad_Ayyoub_128kbps", name: "محمد أيوب", sub: "مرتل" },
+  { id: "Muhammad_Jibreel_128kbps", name: "محمد جبريل", sub: "مرتل" },
+  { id: "Mustafa_Ismail_48kbps", name: "مصطفى إسماعيل", sub: "مجوّد" },
+  { id: "Sahl_Yassin_128kbps", name: "سهل ياسين", sub: "مرتل" },
+  { id: "Salah_Al_Budair_128kbps", name: "صلاح البدير", sub: "مرتل" },
+  { id: "Saad_Al_Ghamidi_Dua_128kbps", name: "سعد الغامدي", sub: "مع الدعاء" },
+  { id: "Wadie_Al-Yamani_64kbps", name: "وديع اليمني", sub: "مرتل" },
+  { id: "Kahlifa_Al_Tonaeji_128kbps", name: "خليفة الطنيجي", sub: "تعليمي" }
+];
+
 async function fetchAudioFiles(chapterId, reciterId) {
-  const res = await fetch(
-    `${API}/recitations/${reciterId}/by_chapter/${chapterId}?per_page=300`
-  );
-  const data = await res.json();
-  return data.audio_files;
+  // EveryAyah does not need a pre-fetch API call because the URLs are predictable.
+  // We return a dummy array representing each verse to keep the rest of the flow intact.
+  return Array.from({ length: 300 }, (_, i) => ({ url: "" }));
 }
 
 async function fetchReciters() {
-  const res = await fetch(`${API}/resources/recitations?language=ar`);
-  const data = await res.json();
-  return data.recitations || [];
+  return EVERYAYAH_RECITERS;
 }
 
 // =====================================================
@@ -344,33 +370,28 @@ function renderReciters(recitersList) {
   recitersList.forEach(r => {
     const opt = document.createElement('option');
     opt.value = r.id;
-    const name = r.translated_name?.name || r.reciter_name || `قارئ #${r.id}`;
-    const style = r.style || '';
-    opt.textContent = style ? `${name} (${style})` : name;
+    opt.textContent = r.sub ? `${r.name} (${r.sub})` : r.name;
     reciterSelect.appendChild(opt);
   });
-  // Set saved reciter, fallback to first
-  if ([...reciterSelect.options].some(o => parseInt(o.value) === selectedReciterId)) {
-    reciterSelect.value = selectedReciterId;
+  
+  // Set saved reciter, fallback to Alafasy
+  const saved = localStorage.getItem('selectedReciter');
+  if (recitersList.some(r => r.id === saved)) {
+    reciterSelect.value = saved;
+    selectedReciterId = saved;
   } else {
-    reciterSelect.selectedIndex = 0;
-    selectedReciterId = parseInt(reciterSelect.value);
+    reciterSelect.value = "Alafasy_128kbps";
+    selectedReciterId = "Alafasy_128kbps";
+    localStorage.setItem('selectedReciter', "Alafasy_128kbps");
   }
 }
 
-reciterSelect.addEventListener('change', async () => {
-  selectedReciterId = parseInt(reciterSelect.value);
+reciterSelect.addEventListener('change', () => {
+  selectedReciterId = reciterSelect.value;
   localStorage.setItem('selectedReciter', selectedReciterId);
 
-  if (currentSurahId) {
-    try {
-      currentAudioFiles = await fetchAudioFiles(currentSurahId, selectedReciterId);
-      if (isPlaying) {
-        playAyah(currentAyahIndex);
-      }
-    } catch (err) {
-      console.error('Error switching reciter audio:', err);
-    }
+  if (currentSurahId && isPlaying) {
+    playAyah(currentAyahIndex);
   }
 });
 
@@ -516,11 +537,17 @@ async function loadSurah(surahId) {
 //  AUDIO PLAYBACK & REPEATER LOGIC
 // =====================================================
 function playAyah(index) {
-  if (!currentAudioFiles || !currentAudioFiles[index]) return;
+  if (!currentVerses || !currentVerses[index]) return;
 
   currentAyahIndex = index;
-  const audioFile = currentAudioFiles[index];
-  const url = AUDIO_BASE + audioFile.url;
+  
+  // Format Surah and Ayah numbers to 3 digits (e.g. Surah 2, Ayah 5 -> "002005")
+  const sNum = String(currentSurahId).padStart(3, '0');
+  const aNum = String(currentVerses[index].verse_number).padStart(3, '0');
+  const file = `${sNum}${aNum}.mp3`;
+  
+  // Construct everyayah.com URL
+  const url = `https://everyayah.com/data/${selectedReciterId}/${file}`;
 
   // Initialize repeat counter for this new verse
   currentRepeatCount = 1;
